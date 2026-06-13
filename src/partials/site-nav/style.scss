@@ -1,0 +1,40 @@
+:root {
+    --active-nav-link-color: var( --svelte-orange );
+    --bold-color: var( --charcoal )
+}
+.dark {
+    --active-nav-link-color: var( --svelte-orange );
+    --bold-color: var( --ash )
+}
+.site-nav {
+    width: 376px;
+    > * > * {
+        color: var( --gray );
+        display: block;
+    }
+    .indent1 { padding-left: 1rem }
+    .indent2 { padding-left: 3rem }
+    .indent3 { padding-left: 5rem }
+    .indent4 { padding-left: 7rem }
+    .group-link {
+        border-bottom: 1px solid;
+        border-color: var( --border-color );
+        color: var( --bold-color );
+        font-weight: 500;
+        margin: auto -0.5rem auto -1rem;
+        padding-left: 1rem;
+        &.indent1 { padding-left: 2rem }
+        &.indent2 { padding-left: 4rem }
+        &.indent3 { padding-left: 6rem }
+        &.indent4 { padding-left: 8rem }
+    }
+    a:hover { color: var( --active-nav-link-color ) }
+    a.group-link:hover { color: var( --active-nav-link-color ) }
+    .active {
+        font-weight: 700;
+        margin: auto -0.6rem;
+        padding: 0 0.6rem;
+        border-radius: 0 4rem 4rem 0;
+        a { color: var( --active-nav-link-color ) }
+    }
+}
