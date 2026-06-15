@@ -41,13 +41,13 @@ const containerCode =
 
 </script>
 
-<Ui />`
+<Ui />`;
 
 const streamContextConstantsCode_7_0_0 =
 `export const selectorMap = { year: 'a.b.x.y.z[0]' };`;
 
 const streamContextCode_7_0_0_1 =
-`<script lang="ts" setup>
+`<script lang="ts">
     import { useMyStream } from './context';
     import { SelectorMap } from './constants';
 
@@ -57,7 +57,7 @@ const streamContextCode_7_0_0_1 =
 <div>Year: { data.year }</div>;`;
 
 const streamContextCode_7_0_0_2 =
-`<script lang="ts" setup>
+`<script lang="ts">
     import { useMyStream } from './context';
     import { SelectorMap } from './constants';
 
@@ -72,7 +72,7 @@ const streamContextCode_7_0_0_2 =
 <div>Year: <input type="number" on:change="onChange" /></div>`;              
 
 const streamContextCode_7_0_0 =
-`<script setup lang="ts">
+`<script lang="ts">
     import Client1 from './Client1';
     import Client2 from './Client2';
 </script>
@@ -82,33 +82,27 @@ const streamContextCode_7_0_0 =
 </div>`;
 
 const setupCode_7_0_0 =
-`<script>
-    const MILLIS_PER_MINUTE = 6e4;
-
+`<script module>
     let numCreated = 0;
-
-    const getNextBDayTimer = (
-        e : { age : number }
-    ) => setTimeout(() => e.age++, MILLIS_PER_MINUTE );
 </script>
-<script setup lang="ts">
-    import { onBeforeUnmount, ref, watch } from 'svelte';
+<script lang="ts">
+    import { onMount } from 'svelte';
     import Container from './container';
 
-    const testNumber = ++numCreated;
-
     const age = $state( 0 );
+    const testNumber = $state( 0 );
+
+    onMount(() => { testNumber = ++numCreated });
 
     $effect(() => {
-        let t = getNextBDayTimer({ age });
-        return() => clearTimeout( t );
+        const t = setTimeout(() => { age++ }, 6e4 );
+        return () => clearTimeout( t );
     });
 </script>
-    <div>
-        <h2>App instance #: { testNumber }</H2>
-        <Container ageInMinutes={ age } />
-    </div>
-</template>`;
+<div>
+    <h2>App instance #: { testNumber }</H2>
+    <Container ageInMinutes={ age } />
+</div>`;
 
 function BodyCurrent() {
     return (
@@ -139,7 +133,6 @@ function BodyCurrent() {
                 <Paragraph>It embodies the "set-it-and-forget-it" paradigm. Just set up a list of property paths to state slices to observe { '(' }see <Anchor to="/concepts/selector-map">Selector Map</Anchor>{ ')' }. The context takes care of the rest.</Paragraph>z
                 <Paragraph>The following shows how to join the <Name /> stream.</Paragraph>
                 <Paragraph>We use the context's <code>stream(...)</code> property to obtain an active store exposing the context change stream to our consumer component.</Paragraph>
-                <Paragraph><NotePad>Please note: Streams must be joined from within the setup script.</NotePad></Paragraph>
             </div>
             <Paragraph className="snippet-box">
                 <Header>constants.svelte.ts</Header>

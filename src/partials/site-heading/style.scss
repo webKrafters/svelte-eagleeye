@@ -1,8 +1,14 @@
-:root { --shbg: var( --skye ) }
-.dark { --shbg: var( --blackie ) }
-:root { --shborder: var( --skye ) }
-.dark { --shborder: var( --blackie ) }
+:root {
+    --shbg: var( --white );
+    --shborder: var( --border-color );
+}
+.dark {
+    --shbg: #23272f;
+    --shborder: #23272f;
+}
 .site-heading {
+    background-color: var( --shbg );
+    border-bottom: 1px solid var( --shborder );
     column-gap: 0.5rem;
     > * { flex: 1 1 auto }
     &, & > * {
@@ -31,14 +37,17 @@
         > * { font-size: 1rem }
     }
     > .branding > .logo-link {
-        background-color: #0000;
-        display: inline-block;
-        margin-top: -0.575rem;
+        background: transparent;
+        margin-bottom: -.5rem;
+        margin-top: -.5rem;
         padding-left: 1rem;
-        position: relative;
     }
     .branding { width: 32rem }
-    .logo { width: 8rem }
+    .logo {
+        background: transparent;
+        height: calc( var( --top-height ) + 0.25rem );
+        width: 8rem;
+    }
     .text {
         align-items: center;
         display: flex;
@@ -59,7 +68,7 @@
             }
         }
         > :last-child {
-            border-left: 0.25rem solid var( --svelte-orange );
+            border-left: 0.25rem solid var( --yellow );
             font-weight: 300;
             padding-left: 0.5rem;
             > a {

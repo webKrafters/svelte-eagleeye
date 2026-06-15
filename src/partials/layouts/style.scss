@@ -1,6 +1,6 @@
 :root {
     --ash: #ccc;
-    --blackie: #222;
+    --blackie: #17191c;
     --blue: #0090ff;
     --charcoal: #444;
     --gray: #888;
@@ -12,20 +12,20 @@
     --skye: #f0faff;
     --white: #fff;
     --yellow: #da4;
-    --background-color: var( --white );
-    --background-color-mild: #f7f7f7;
-    --border-color: var( --ash );
+    --background-color: #fdfdfd;
+    --background-color-mild: #eaeaea;
+    --border-color: var( --background-color-mild );
     --color: var( --blackie );
-    --top-height: 4rem;
+    --scope-bg: var( --white );
+    --top-height: 4.5rem;
 }
 
 .dark {
     --background-color: var( --blackie );
-    --border-color: var( --charcoal );
     --background-color-mild: #272727;
+    --border-color: var( --background-color-mild );
     --color: var( --white );
-    --vue-blue: #6C87ff;
-    --vue-green: #21c37a;
+    --scope-bg: #1c1e22;
 }
 
 body {

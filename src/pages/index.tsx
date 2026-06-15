@@ -39,8 +39,8 @@ const IndexPage : React.FC<Props> = ({ className, data }) => {
 		<article className={ `index-page ${ className }` }>
 			{ devDisclaimer }
 			<h1>Welcome to <Name /> JS!</h1>
-			<NotePad>Compatible with Vue 3 and above.</NotePad>
-			<Paragraph>An intuitive reactive context based vue state manager. No complex wirings required. Create once: use everywhere both in and out of the Vue component hierarchy.</Paragraph>
+			<NotePad>Compatible with Svelte 5 and above.</NotePad>
+			<Paragraph>An intuitive reactive context based Svelte state manager. No complex wirings required. Create once: use everywhere both in and out of the Svelte component hierarchy.</Paragraph>
 			<Paragraph>Supports for framework-agnostic state sharing among applications OOB. Simply create an <Anchor to="https://auto-immutable.js.org/intro/">Auto Immutable</Anchor> instance to pass around as the <code>value</code> argument for this or any <Anchor to="https://eagleeye.js.org">Eagle Eye</Anchor> based <Anchor to="https://www.npmjs.com/package/@webkrafters/eagleeye?activeTab=readme#usage">state manager</Anchor> instances.</Paragraph>
 			<Paragraph>
 				<label>
@@ -55,7 +55,7 @@ const IndexPage : React.FC<Props> = ({ className, data }) => {
 				<label>
 					<b>Main:</b>
 					<CodeBlock isInline>
-						npm install --save @webkrafters/vue-eagleeye
+						npm install --save @webkrafters/svelte-eagleeye
 					</CodeBlock>
 				</label>
 			</Paragraph>
@@ -76,8 +76,8 @@ const IndexPage : React.FC<Props> = ({ className, data }) => {
 					Should the sandbox fail to load app, please clone and run the demo repo as follows.
 					<ol>
 						<li>open your command line interface in your local machine.</li>
-						<li>run <code>git clone https://github.com/webKrafters/vue-eagleeye-app.git</code></li>
-						<li>run <code>cd vue-eagleeye-app</code></li>
+						<li>run <code>git clone https://github.com/webKrafters/svelte-eagleeye-app.git</code></li>
+						<li>run <code>cd svelte-eagleeye-app</code></li>
 						<li>run <code>npm install &amp;&amp; npm run dev</code></li>
 						<li>open the URL displayed at then of this script run.</li>
 					</ol>
@@ -119,7 +119,7 @@ export const query = graphql`
 
 export const Head : HeadFC = () => (
 	<meta
-		content="Welcome to Vue Eagle Eye!"
+		content="Welcome to Svelte Eagle Eye!"
 		name="description"
 	/>
 );

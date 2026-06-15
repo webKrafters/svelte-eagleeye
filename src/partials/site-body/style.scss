@@ -1,5 +1,5 @@
-:root { --sbsider-bg: var( --background-color-mild ) }
-.dark { --sbsider-bg: var( --background-color ) }
+:root { --sb-sider-border: var( --border-color ) }
+.dark { --sb-sider-border: transparent }
 
 .site-body {
     display: flex;
@@ -22,7 +22,6 @@
         }
     }
     .aux-sider {
-        background: var( --background-color );
         @media ( max-width: 1399px ) {
             border: none;
             margin-top: 1px;
@@ -61,10 +60,12 @@
         }
     }
     &-sider {
-        background: var( --sbsider-bg );
-        border: none;
+        border: 1px solid var( --sb-sider-border );
         padding: 0.5rem;
         padding-top: 3.75rem;
         &.closed { display: none }
+    }
+    > :not( .site-body-sider ) {
+        background-color: var( --scope-bg );
     }
 }

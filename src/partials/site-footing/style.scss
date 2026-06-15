@@ -1,7 +1,5 @@
-:root { --sfbg: var( --midnight ) }
-.dark { --sfbg: var( --blackie ) }
 .site-footing {
-    background-color: var( --sfbg );
+    background: var( --scope-bg );
     border: none;
     color: var( --gray );
     padding: 0.5rem;

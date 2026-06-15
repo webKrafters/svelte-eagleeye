@@ -10,13 +10,12 @@ import Name from '../partials/name';
 import Paragraph from '../partials/paragraph';
 
 const setupCode_7_0_0 =
-`<script setup lang="ts">
-    import { onMmounted } from 'svelte';
+`<script lang="ts">
     import ObservableContext from './context'; // using example from the "Getting Started Page"
     import Ui from './Ui'; // using example from the "Getting Started Page"
     import StoreMonitor from './debug-monitor';
 
-    onMount(() => {
+    $effect(() => {
         const monitor = new StoreMonitor(
             d => console.log( d ),
             ObservableContext.store
@@ -24,9 +23,8 @@ const setupCode_7_0_0 =
         return () => monitor.cleanup();
     });
 </script>
-<template>
-    <Ui />
-</template>`;
+
+<Ui />`;
 
 const externalAccessCode =
 `class Monitor {
