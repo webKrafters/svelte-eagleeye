@@ -148,7 +148,7 @@ function BodyCurrent() {
                 The <Name /> runs decoupled from its embodying application, simply providing an active place for the application to accumulate, access, update and delete its various states as needed in ways that maintains immutability and integrity of state data. The following is a contrived snippet to demonstrate.
             </Paragraph>
             <Paragraph className="snippet-box">
-                <Header>app.swelte</Header>
+                <Header>app.svelte</Header>
                 <CodeBlock>{ setupCode_7_0_0 }</CodeBlock>
             </Paragraph>
         </>
