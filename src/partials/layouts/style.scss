@@ -7,11 +7,13 @@
     --green: #04a95f;
     --midnight: #23272f;
     --turquoise: #00b8cf;
-    --vue-blue: #647eff;
+    --svelte-maroon: #b32d00;
     --svelte-orange: #f96743;
     --skye: #f0faff;
     --white: #fff;
     --yellow: #da4;
+    --a-color: var( --svelte-maroon );
+    --a-color-inverted: var( --svelte-orange );
     --background-color: #fdfdfd;
     --background-color-mild: #eaeaea;
     --border-color: var( --background-color-mild );
@@ -21,6 +23,8 @@
 }
 
 .dark {
+    --a-color: var( --svelte-orange );
+    --a-color-inverted: var( --svelte-maroon );
     --background-color: var( --blackie );
     --background-color-mild: #272727;
     --border-color: var( --background-color-mild );
@@ -47,10 +51,10 @@ body {
         color: inherit;
     }
     a {
-        color: var( --svelte-orange );
+        color: var( --a-color );
         text-decoration: none;
         &:hover {
-            color: var( --svelte-orange );
+            color: var( --a-color );
             opacity: 70%;
         }
     }

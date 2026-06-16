@@ -30,7 +30,7 @@ const IndexPage : React.FC<Props> = ({ className, data }) => {
 
 	let devDisclaimer = null;
 	devDisclaimer = (
-		<h2 style={{ color: '#b32d00' }}>
+		<h2 className="disclaimer-hero">
 			Under construction ... Please, do not use this at this time ... Documentation will be ready soon.
 		</h2>
 	);

@@ -1,11 +1,6 @@
-:root {
-    --active-nav-link-color: var( --svelte-orange );
-    --bold-color: var( --charcoal );
-}
-.dark {
-    --active-nav-link-color: var( --svelte-orange );
-    --bold-color: var( --ash );
-}
+:root { --bold-color: var( --charcoal ) }
+.dark { --bold-color: var( --ash ) }
+
 .site-nav {
     width: 376px;
     > * > * {
@@ -28,13 +23,13 @@
         &.indent3 { padding-left: 6rem }
         &.indent4 { padding-left: 8rem }
     }
-    a:hover { color: var( --active-nav-link-color ) }
-    a.group-link:hover { color: var( --active-nav-link-color ) }
+    a:hover { color: var( --a-color ) }
+    a.group-link:hover { color: var( --a-color ) }
     .active {
         font-weight: 700;
         margin: auto -0.6rem;
         padding: 0 0.6rem;
         border-radius: 0 4rem 4rem 0;
-        a { color: var( --active-nav-link-color ) }
+        a { color: var( --a-color ) }
     }
 }
