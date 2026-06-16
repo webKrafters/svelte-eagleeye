@@ -1,3 +1,5 @@
+:root { --dkm-border-color: var( --ash ) }
+.dark { --dkm-border-color: transparent }
 .site-footing {
     background: var( --scope-bg );
     border: none;
@@ -42,8 +44,12 @@
         > a { cursor: pointer }
     }
     .dark-mode-settings {
+        border-color: var( --dkm-border-color );
         .anticon {
-            &-moon { font-size: 0.75rem }
+            &-moon {
+                color: var( --charcoal );
+                font-size: 0.75rem;
+            }
             &-sun { font-size: 1rem }
         }
     }

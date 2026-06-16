@@ -62,7 +62,6 @@
     &-sider {
         border: 1px solid var( --sb-sider-border );
         padding: 0.5rem;
-        padding-top: 3.75rem;
         &.closed { display: none }
     }
     > :not( .site-body-sider ) {
