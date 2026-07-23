@@ -25,7 +25,8 @@ export const Head : HeadFC = () => ( <title>Getting Started</title> );
 const creatorCode_7_0_0 =
 `import { createEagleEye } from '@webkrafters/svelte-eagleeye';
 const MyContext = createEagleEye({
-    a: { b: { c: null, x: { y: { z: [ 2022 ] } } } }
+    CTX_DESC: 'My Demo Context',
+    value: { a: { b: { c: null, x: { y: { z: [ 2022 ] } } } } }
 });
 export const useMyStream = MyContext.stream;
 export default MyContext;`
@@ -51,7 +52,7 @@ const streamContextCode_7_0_0_1 =
     import { useMyStream } from './context';
     import { SelectorMap } from './constants';
 
-    const { data } = useMyStream( SelectorMap );
+    const { data } = useMyStream( 'MY COMPONENT', SelectorMap );
 
 </script>
 <div>Year: { data.year }</div>;`;
@@ -61,7 +62,7 @@ const streamContextCode_7_0_0_2 =
     import { useMyStream } from './context';
     import { SelectorMap } from './constants';
 
-    const { data, setState, resetState } = useMyStream( SelectorMap );
+    const { data, setState, resetState } = useMyStream( 'MY COMPONENT', SelectorMap );
 
     const onChange = e => setState({
         a: { b: { x: { y: { z: { 0: e.target.value } } } } }
@@ -104,6 +105,15 @@ const setupCode_7_0_0 =
     <Container ageInMinutes={ age } />
 </div>`;
 
+const ssrConfig =
+`{
+    ssr: {
+        noExternal: [
+            '@webkrafters/svelte-eagleeye'
+        ]
+    }
+}`;
+
 function BodyCurrent() {
     return (
         <>
@@ -114,10 +124,13 @@ function BodyCurrent() {
                 <CodeBlock isInline>
                     npm install --save @webkrafters/svelte-eagleeye
                 </CodeBlock>
+                If creating an SSR application, please be sure to add the following to your `vite.config.ts` object top level:<br />
+                <CodeBlock>{ ssrConfig }</CodeBlock>
             </Paragraph>
             <Paragraph className="snippet-intro" id="create-context-usage">
                 <h3>Creating the <Name /> store</h3>
-                To obtain a fresh context store, just call the <code>createEagleEye(...)</code> function. 
+                To obtain a fresh context store, just call the <code>createEagleEye(...)</code> function.
+                <NotePad>According to Svelte rules for contexts. Be sure to call this function at the top component whose children and descendants will use the context.</NotePad>
             </Paragraph>
             <Paragraph className="snippet-box">
                 <Header>context.svelte.ts</Header>
