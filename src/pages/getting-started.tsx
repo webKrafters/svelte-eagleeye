@@ -10,6 +10,7 @@ import Header from '../partials/segment-header';
 import Name from '../partials/name';
 import NotePad from '../partials/pad/note';
 import Paragraph from '../partials/paragraph';
+import ListItem from '../partials/list-item';
 
 const GettingStartedPage : React.FC<PageProps> = ({ className }) => (
     <article className={ `getting-started-page ${ className }` }>
@@ -22,73 +23,113 @@ export default GettingStartedPage;
 
 export const Head : HeadFC = () => ( <title>Getting Started</title> );
 
-const creatorCode_7_0_0 =
-`import { createEagleEye } from '@webkrafters/svelte-eagleeye';
-const MyContext = createEagleEye({
-    CTX_DESC: 'My Demo Context',
-    value: { a: { b: { c: null, x: { y: { z: [ 2022 ] } } } } }
-});
-export const useMyStream = MyContext.stream;
-export default MyContext;`
+const contextArtifacts_7_0_0 = // './demo-context.ts'
+`export const initState = {
+    a: {
+        b: {
+            c: null,
+            x: {
+                y: {
+                    z: [ 2022 ]
+                }
+            }
+        }
+    } 
+};
 
-const containerCode =
+export type DemoState = typeof initState;
+
+export const description = 'My Demo Context';`;
+
+const creatorCode_7_0_0 = // './provider.svelte'
+`<script lang='ts'>
+    import { createEagleEye } from '@webkrafters/svelte-eagleeye';
+    import { description, defaultState } from './demo-context.ts';
+
+    const { children } = $props();
+
+    createEagleEye<DemoState>({
+        CTX_DESC: description,
+        value: defaultState
+    });
+</script>
+
+{@render(children())}`;
+
+const containerCode = // './container.svelte'
 `<script lang="ts">
-    import MyContext from './context';
+    import { useEagleEye } from '@webkrafters/svelte-eagleeye';
+    import { description, type DemoState } from './demo-context.ts';
+    import Provider from './provider.svelte';
     import Ui from './ui';
                             
     const { ageInMinutes = 0 } = $props();
 
-    $effect(() => MyContext.store.setState({ c: ageInMinutes }));
+    const ctx = useEagleEye<DemoState>( description );
+
+    $effect(() => ctx.store.setState({ c: ageInMinutes }));
 
 </script>
 
-<Ui />`;
+<Provider>
+    <Ui />
+</Provider>`;
 
-const streamContextConstantsCode_7_0_0 =
+const streamContextConstantsCode_7_0_0 = // './constants.ts
 `export const selectorMap = { year: 'a.b.x.y.z[0]' };`;
 
-const streamContextCode_7_0_0_1 =
+const streamContextCode_7_0_0_1 = // './Client1.svelte'
 `<script lang="ts">
-    import { useMyStream } from './context';
-    import { SelectorMap } from './constants';
+    import { useEagleEye } from '@webkrafters/svelte-eagleeye';
+    import { description, type DemoState } from './demo-context.ts';
+    import { SelectorMap } from './constants.ts';
 
-    const { data } = useMyStream( 'MY COMPONENT', SelectorMap );
+    const { data } = useEagleEye<DemoState>( description )
+                        .stream( 'MY CONTAINER I', SelectorMap );
 
 </script>
 <div>Year: { data.year }</div>;`;
 
-const streamContextCode_7_0_0_2 =
+const streamContextCode_7_0_0_2 = // './Client2.svelte'
 `<script lang="ts">
-    import { useMyStream } from './context';
-    import { SelectorMap } from './constants';
+    
+    import { useEagleEye } from '@webkrafters/svelte-eagleeye';
+    import { description, type DemoState } from './demo-context.ts';
+    import { SelectorMap } from './constants.ts';
 
-    const { data, setState, resetState } = useMyStream( 'MY COMPONENT', SelectorMap );
+    const { stream } = useEagleEye<DemoState>( description );
+
+    const {
+        data,
+        resetState,
+        setState
+    } = stream( 'MY CONTAINER II', SelectorMap );
 
     const onChange = e => setState({
         a: { b: { x: { y: { z: { 0: e.target.value } } } } }
-    });
+    } as DemoState );
 
     $effect(() => data.year > 2049 && resetState([ 'a.b.c' ]);
 </script>
-<div>Year: <input type="number" on:change="onChange" /></div>`;              
+<div>Year: <input type="number" onchange={ onChange } /></div>`;              
 
-const streamContextCode_7_0_0 =
+const streamContextCode_7_0_0 = // './Ui.svelte'
 `<script lang="ts">
-    import Client1 from './Client1';
-    import Client2 from './Client2';
+    import Client1 from './Client1.svelte';
+    import Client2 from './Client2.svelte';
 </script>
 <div>
     <Client1 />
     <Client2 />
 </div>`;
 
-const setupCode_7_0_0 =
+const setupCode_7_0_0 = // './app.svelte'
 `<script module>
     let numCreated = 0;
 </script>
 <script lang="ts">
     import { onMount } from 'svelte';
-    import Container from './container';
+    import Container from './container.svelte';
 
     const age = $state( 0 );
     const testNumber = $state( 0 );
@@ -105,35 +146,48 @@ const setupCode_7_0_0 =
     <Container ageInMinutes={ age } />
 </div>`;
 
-const ssrConfig =
-`{
-    ssr: {
-        noExternal: [
-            '@webkrafters/svelte-eagleeye'
-        ]
-    }
-}`;
-
 function BodyCurrent() {
     return (
         <>
             <Paragraph className="snippet-intro" id="install">
-                <Name /> is an independent state manager, which once created, can be deployed at any location in all parts of the application without further ado. 
+                <Name /> is an independent state manager, which once created, can be passed as an argument to any function with in the app and/or deployed at any location from the point of creation unto all child and descendant components without further ado. 
+            </Paragraph>
+            <Paragraph className="snippet-intro" id="create-context-usage">
+                Three module functions are provided for integrating this context within the Svelte application environment. Namely:
+                <ListItem><div><strong>createEagleEye:</strong> creates and embeds within the component tree an EagleEye context instance matching a given description. This function must be called at the top parent component. This makes the coontext retrievable from all child and descendant components of this component.</div></ListItem>
+                <ListItem>
+                    <div>
+                        <strong>discardEagleEye:</strong> closes and removes from the component tree an EagleEye context instance matching a given description. For instance references outside the component tree, may monitor its status either
+                        <ul>
+                            <li>by querying its <code>closed</code> property or</li>
+                            <li>by observing it through the <strong>CLOSING</strong> event of its <strong><code>store</code></strong> property.</li>
+                        </ul>
+                    </div>
+                </ListItem>
+                <ListItem><div><strong>useEagleEye:</strong> produces the EagleEye context instance from the component tree matching a given description. This function should only be used following the <code>createEagleEye</code> call from with the parent and all of its child and descendant components.</div></ListItem>
+                <div>In keeping with Svelte rules for context API usage, all three modules must be invoked from within the component startup <code>{ `<script lang="ts">` }</code> section of the <code>.svelte</code> file. However, the returned context can be used anywhere within the app.</div>
             </Paragraph>
             <Paragraph className="snippet-box" id="usage">
                 <CodeBlock isInline>
                     npm install --save @webkrafters/svelte-eagleeye
                 </CodeBlock>
-                If creating an SSR application, please be sure to add the following to your `vite.config.ts` object top level:<br />
-                <CodeBlock>{ ssrConfig }</CodeBlock>
             </Paragraph>
             <Paragraph className="snippet-intro" id="create-context-usage">
                 <h3>Creating the <Name /> store</h3>
                 To obtain a fresh context store, just call the <code>createEagleEye(...)</code> function.
                 <NotePad>According to Svelte rules for contexts. Be sure to call this function at the top component whose children and descendants will use the context.</NotePad>
             </Paragraph>
+            <Paragraph className="snippet-intro" id="create-context-usage">
+                <h3>Creating the <Name /> store</h3>
+                <div>To obtain a fresh context store, just call the <code>createEagleEye(...)</code> function.</div>
+                <NotePad>According to Svelte rules for contexts. Be sure to call this function at the top component whose children and descendants will use the context.</NotePad>
+            </Paragraph>
             <Paragraph className="snippet-box">
-                <Header>context.svelte.ts</Header>
+                <Header>demo-context.ts</Header>
+                <CodeBlock>{ contextArtifacts_7_0_0 }</CodeBlock>
+            </Paragraph>
+            <Paragraph className="snippet-box">
+                <Header>provider.svelte</Header>
                 <CodeBlock>{ creatorCode_7_0_0 }</CodeBlock>
             </Paragraph>
             <Paragraph className="snippet-box">
@@ -148,13 +202,13 @@ function BodyCurrent() {
                 <Paragraph>We use the context's <code>stream(...)</code> property to obtain an active store exposing the context change stream to our consumer component.</Paragraph>
             </div>
             <Paragraph className="snippet-box">
-                <Header>constants.svelte.ts</Header>
+                <Header>constants.ts</Header>
                 <CodeBlock>{ streamContextConstantsCode_7_0_0 }</CodeBlock>
                 <Header>Client1.svelte</Header>
                 <CodeBlock>{ streamContextCode_7_0_0_1 }</CodeBlock>
                 <Header>Client2.svelte</Header>
                 <CodeBlock>{ streamContextCode_7_0_0_2 }</CodeBlock>
-                <Header>Ui.svelte </Header>
+                <Header>Ui.svelte</Header>
                 <CodeBlock>{ streamContextCode_7_0_0 }</CodeBlock>
             </Paragraph>
             <Paragraph className="snippet-intro">

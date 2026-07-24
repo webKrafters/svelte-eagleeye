@@ -1,5 +1,5 @@
 {
-  "alias": "vue-eagleeye.doc",
+  "alias": "svelte-eagleeye.doc",
   "author": {
     "email": "stephen.isienyi@webkrafting.com",
     "name": "Stephen Isienyi"
@@ -21,7 +21,7 @@
     "react-dom": "^18.2.0",
     "sass": "^1.74.1"
   },
-  "description": "Vue Eagle Eye state manager dev site.",
+  "description": "Svelte Eagle Eye state manager dev site.",
   "devDependencies": {
     "@types/node": "^20.11.19",
     "@types/react": "^18.2.55",
@@ -33,17 +33,17 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "homepage": "https://vue-eagleeye.js.org",
+  "homepage": "https://svelte-eagleeye.js.org",
   "keywords": [
-    "vue js",
-    "vue.js",
-    "vue",
-    "vuejs",
+    "svelte js",
+    "svelte.js",
+    "sveltevue",
+    "sveltejs",
     "state"
   ],
   "license": "ISC",
   "main": "index.js",
-  "name": "vue-eagleeye-dev",
+  "name": "svelte-eagleeye-dev",
   "overrides": {
     "react-server-dom-webpack@0.0.0-experimental-c8b778b7f-20220825": {
       "react": "^18.2.0",
@@ -53,7 +53,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/webKrafters/vue-eagleeye.git"
+    "url": "https://github.com/webKrafters/svelte-eagleeye.git"
   },
   "scripts": {
     "build": "gatsby clean && gatsby build && node ./bundle-site",
