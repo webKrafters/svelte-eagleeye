@@ -11,6 +11,9 @@ import Name from '../partials/name';
 import NotePad from '../partials/pad/note';
 import Paragraph from '../partials/paragraph';
 import ListItem from '../partials/list-item';
+import SelectTab from '../partials/select-tab';
+
+import '../partials/contents/getting-started-page/style.scss';
 
 const GettingStartedPage : React.FC<PageProps> = ({ className }) => (
     <article className={ `getting-started-page ${ className }` }>
@@ -23,87 +26,214 @@ export default GettingStartedPage;
 
 export const Head : HeadFC = () => ( <title>Getting Started</title> );
 
-const contextArtifacts_7_0_0 = // './demo-context.ts'
+const sampleContextArtifacts =
 `export const initState = {
     a: {
         b: {
             c: null,
             x: {
+                v: false,
                 y: {
                     z: [ 2022 ]
                 }
             }
         }
-    } 
+    }
 };
 
 export type DemoState = typeof initState;
 
-export const description = 'My Demo Context';`;
+export const ContextKey = 'My Demo Context';
 
-const creatorCode_7_0_0 = // './provider.svelte'
-`<script lang='ts'>
+export const pageSelectorMap = {
+    active: 'a.b.x.v',
+    year: 'a.b.x.y.z[0]'
+};`;
+
+const sampleServerHook =
+`import type { Handle } from '@sveltejs/kit';
+
+import {
+    FULL_STATE_SELECTOR,
+    type RequestToken
+    useEagleEye
+} from '@webkrafters/svelte-eagleeye';
+
+import { ContextKey } from './demo-context-artifacts.ts';
+
+export const handle : Handle = async ({ event, resolve }) => {
+    event.locals.requestToken = { // immediately provide a unique ID for this incoming request 
+        _id: crypto.randomUUID()
+    } as RequestToken;
+    const response = await resolve( event ); // layouts, pages and components are processed and resolved here.
+    const ctx = useEagleEye({ // using \`useEagleEye(...)\` as svelte getContext is not accessible from here
+        key: ContextKey,
+        requestToken: event.locals.requestToken
+    });
+    console.log( ctx.store.getState([ FULL_STATE_SELECTOR ]); // log final state of this EagleEye context data
+    return response;
+};`;
+
+const sampleServerLayout =
+`import { initState } from '../demo-context-artifacts.ts';
+
+let demoCtxValue = { ...initState };
+// build up \`demoCtxValue\`\ with request dependent operations as needed.
+
+export const load = async ({ locals }) => ({
+    demoCtxValue,
+    requestToken: locals.requestToken
+});`;
+
+const sampleLayoutUniversal =
+`<script lang="ts" module>
+    import { ContextKey } from '../demo-context-artifacts.ts';
+    export const CTX_KEY = ContextKey;
+</script>
+<script lang="ts">
+    import { setContext, untrack } from 'svelte';
     import { createEagleEye } from '@webkrafters/svelte-eagleeye';
-    import { description, defaultState } from './demo-context.ts';
 
-    const { children } = $props();
+    const { data, children } = $props();
 
-    createEagleEye<DemoState>({
-        CTX_DESC: description,
-        value: defaultState
+    const { requestToken, value } = untrack( () => data );
+
+    const ctx = createEagleEye({
+        key: CTX_KEY,
+        prehooks?,
+        requestToken,
+        value,
+        storage?
+    });
+    // can tie this instance to component tree making it easier to obtain in the component environment by:
+    setContext( CTX_KEY, ctx ); // does not have to be CTX_KEY but assures naming consistency
+    ...
+</script>
+
+{@render children()}
+`;
+
+const sampleLayoutUniversal2 =
+`<script lang="ts" module>
+    import { ContextKey } from '../demo-context-artifacts.ts';
+    export const CTX_KEY = ContextKey;
+</script>
+<script lang="ts">
+    import { setContext, untrack } from 'svelte';
+    import { createEagleEye } from '@webkrafters/svelte-eagleeye';
+
+    const { data, children } = $props(); // from the server load function
+
+    const { requestToken, value } = untrack( () => data );
+
+    const ctx = createEagleEye({
+        key: CTX_KEY,
+        prehooks?,
+        requestToken,
+        value,
+        storage?
+    });
+    setContext( CTX_KEY, { ctx, requestToken } ); // \<\-\-\-\-\-
+    ...
+</script>
+
+{@render children()}
+`;
+
+const sampleLayoutCSROnly =
+`<script lang="ts" module>
+    import { ContextKey, initState } from '../demo-context-artifacts.ts';
+    let numCreated = 0;
+    export const CTX_KEY = 'Testing';
+</script>
+<script lang="ts">
+    import { onMount, setContext } from 'svelte';
+    import { createEagleEye } from '@webkrafters/svelte-eagleeye';
+
+    const age = $state( 0 );
+    const testNumber = $state( 0 );
+
+    const ctx = createEagleEye({
+        key: CTX_KEY, // does not have to be CTX_KEY but assures naming consistency
+        value: initState,
+        prehooks?,
+        storage?
+    });
+    // can tie this instance to component tree making it easier to obtain in the component environment by:
+    setContext( CTX_KEY, ctx );
+
+    ...
+
+    onMount(() => { testNumber = ++numCreated });
+
+    $effect(() => {
+        const t = setTimeout(() => { age++ }, 6e4 );
+        return () => clearTimeout( t );
     });
 </script>
 
-{@render(children())}`;
+{@render children()}
+<div style={ 'border-top: 1px dotted #666; display: flex; justify-contentt: space-even;' }>
+    <div>Age in minutes: { age }.</div>
+    <span>App instance #: { testNumber }</span>
+</div>`;
 
-const containerCode = // './container.svelte'
+const sampleComponent =
 `<script lang="ts">
-    import { useEagleEye } from '@webkrafters/svelte-eagleeye';
-    import { description, type DemoState } from './demo-context.ts';
-    import Provider from './provider.svelte';
-    import Ui from './ui';
-                            
-    const { ageInMinutes = 0 } = $props();
+    import { getContext } from 'svelte';
+    import { pageSelectorMap } from './demo-context-artifacts.ts';
+    import { CTX_KEY } from './+layout.svelte';
+    
+    const ctx = getContext( CTX_KEY );
+    const {
+        data, // this will never be subject to loss of reactivity
+        setState
+    } = ctx.stream( 'MY INDEX PAGE', pageSelectorMap );
 
-    const ctx = useEagleEye<DemoState>( description );
+    const CTA = $derived( data.active ? 'deactivate' : 'activate' );
 
-    $effect(() => ctx.store.setState({ c: ageInMinutes }));
-
+    const toggleStatus = () => setState({
+        a: { b: { x: { v: !data.active } } }
+    });
+    ...
 </script>
 
-<Provider>
-    <Ui />
-</Provider>`;
+<div>{ JSON.stringify( data, null, 2 ) }</div>
+<button onclick={ toggleStatus }>{ CTA }</button>`;
 
-const streamContextConstantsCode_7_0_0 = // './constants.ts
-`export const selectorMap = { year: 'a.b.x.y.z[0]' };`;
-
-const streamContextCode_7_0_0_1 = // './Client1.svelte'
+const streamContextCode_7_0_0_1 =
 `<script lang="ts">
-    import { useEagleEye } from '@webkrafters/svelte-eagleeye';
-    import { description, type DemoState } from './demo-context.ts';
-    import { SelectorMap } from './constants.ts';
+    import { type SvelteEagleEye } from '@webkrafters/svelte-eagleeye';
+    import {
+        ContextKey,
+        type DemoState,
+        pageSelectorMap
+    } from './demo-context-artifacts.ts';
 
-    const { data } = useEagleEye<DemoState>( description )
-                        .stream( 'MY CONTAINER I', SelectorMap );
+    const { data } = getContext<SvelteEagleEye<DemoState>>( ContextKey )
+                        .stream( 'MY CONTAINER I', {
+                            year: pageSelectorMap.year
+                        } );
 
 </script>
 <div>Year: { data.year }</div>;`;
 
-const streamContextCode_7_0_0_2 = // './Client2.svelte'
+const streamContextCode_7_0_0_2 =
 `<script lang="ts">
+    import { type SvelteEagleEye } from '@webkrafters/svelte-eagleeye';
+    import {
+        ContextKey,
+        type DemoState,
+        pageSelectorMap
+    } from './demo-context-artifacts.ts';
+
+    const { stream } = getContext<SvelteEagleEye<DemoState>>( ContextKey );
     
-    import { useEagleEye } from '@webkrafters/svelte-eagleeye';
-    import { description, type DemoState } from './demo-context.ts';
-    import { SelectorMap } from './constants.ts';
-
-    const { stream } = useEagleEye<DemoState>( description );
-
     const {
-        data,
-        resetState,
-        setState
-    } = stream( 'MY CONTAINER II', SelectorMap );
+        data, resetState, setState
+    } = stream( 'MY CONTAINER II', {
+        year: pageSelectorMap.year
+    });
 
     const onChange = e => setState({
         a: { b: { x: { y: { z: { 0: e.target.value } } } } }
@@ -113,59 +243,59 @@ const streamContextCode_7_0_0_2 = // './Client2.svelte'
 </script>
 <div>Year: <input type="number" onchange={ onChange } /></div>`;              
 
-const streamContextCode_7_0_0 = // './Ui.svelte'
+const streamContextCode_7_0_0 =
 `<script lang="ts">
     import Client1 from './Client1.svelte';
     import Client2 from './Client2.svelte';
 </script>
-<div>
-    <Client1 />
-    <Client2 />
-</div>`;
+<Client1 />
+<Client2 />`;
 
-const setupCode_7_0_0 = // './app.svelte'
-`<script module>
-    let numCreated = 0;
-</script>
-<script lang="ts">
-    import { onMount } from 'svelte';
-    import Container from './container.svelte';
+const discardContextTrigger =
+`<script lang="ts">
+    import { getContext, onDestroy } from 'svelte';
+    import { discardEagleEye } from '@webkrafters/svelte-eagleeye';
+    import { CTX_KEY } from './+layout.svelte';
+    
+    const { requestToken } = getContext( CTX_KEY );
 
-    const age = $state( 0 );
-    const testNumber = $state( 0 );
-
-    onMount(() => { testNumber = ++numCreated });
-
-    $effect(() => {
-        const t = setTimeout(() => { age++ }, 6e4 );
-        return () => clearTimeout( t );
-    });
-</script>
-<div>
-    <h2>App instance #: { testNumber }</H2>
-    <Container ageInMinutes={ age } />
-</div>`;
+    onDestroy(() => discardEagleEye({
+        key: CTX_KEY, requestToken
+    }));
+</script>`;
 
 function BodyCurrent() {
     return (
         <>
             <Paragraph className="snippet-intro" id="install">
-                <Name /> is an independent state manager, which once created, can be passed as an argument to any function with in the app and/or deployed at any location from the point of creation unto all child and descendant components without further ado. 
+                <Name /> is an independent state manager, which once created, can be passed as an argument to any function and/or deployed at any location within an application without further ado. 
             </Paragraph>
             <Paragraph className="snippet-intro" id="create-context-usage">
-                Three module functions are provided for integrating this context within the Svelte application environment. Namely:
-                <ListItem><div><strong>createEagleEye:</strong> creates and embeds within the component tree an EagleEye context instance matching a given description. This function must be called at the top parent component. This makes the coontext retrievable from all child and descendant components of this component.</div></ListItem>
+                Four <strong>{ '(' }4{ ')' }</strong> module functions are provided for integrating this context within the Svelte application environment. Namely:
                 <ListItem>
                     <div>
-                        <strong>discardEagleEye:</strong> closes and removes from the component tree an EagleEye context instance matching a given description. For instance references outside the component tree, may monitor its status either
-                        <ul>
-                            <li>by querying its <code>closed</code> property or</li>
-                            <li>by observing it through the <strong>CLOSING</strong> event of its <strong><code>store</code></strong> property.</li>
-                        </ul>
+                        <strong>allKeysIn:</strong> lists keys of all EagleEye contexts assigned to a request.
+                        <NotePad>A server request is identified by an arbitrary `requestToken` object holding unique string `_id` value. While `requestToken` may be used on the client-side, it is unnecessary.</NotePad>
                     </div>
                 </ListItem>
-                <ListItem><div><strong>useEagleEye:</strong> produces the EagleEye context instance from the component tree matching a given description. This function should only be used following the <code>createEagleEye</code> call from with the parent and all of its child and descendant components.</div></ListItem>
-                <div>In keeping with Svelte rules for context API usage, all three modules must be invoked from within the component startup <code>{ `<script lang="ts">` }</code> section of the <code>.svelte</code> file. However, the returned context can be used anywhere within the app.</div>
+                <ListItem>
+                    <div>
+                        <strong>createEagleEye:</strong> creates an EagleEye context instance matching an arbitrary key { '[' }and optional arbitrary requestToken { '(' }a server request requirement{ ')' }{ ']' }.
+                        <NotePad>The `requestToken` object and its `_id` property must be unique in the appilcation. The key for each EagleEye context created under each `requestToken` must be unique within the request.</NotePad>
+                    </div>
+                </ListItem>
+                <ListItem>
+                    <div>
+                        <strong>discardEagleEye:</strong> closes and removes from an application the EagleEye context instance matching its assigned key { '[' }and, if assigned, its requestToken object{ ']' }.
+                        <NotePad>Once called, any `useEagleEye` attempts on this `requestToken`-`key` combination return null. Accessing it using the Svelte `getConext(...)` will produce and EagleEye context instance whose `closed` property is set.</NotePad>
+                    </div>
+                </ListItem>
+                <ListItem>
+                    <div>
+                        <strong>useEagleEye:</strong> returns the EagleEye context instance matching its assigned key { '[' }and, if assigned, its requestToken object{ ']' }.
+                        <NotePad>This function makes an EagleEye context instance accessible throughout the application. While in a Svelte component script, it is more effective to capture the EagleEye context instance within the Svelte context and easily access it through out a component tree section that way.</NotePad>
+                    </div>
+                </ListItem>
             </Paragraph>
             <Paragraph className="snippet-box" id="usage">
                 <CodeBlock isInline>
@@ -174,50 +304,94 @@ function BodyCurrent() {
             </Paragraph>
             <Paragraph className="snippet-intro" id="create-context-usage">
                 <h3>Creating the <Name /> store</h3>
-                To obtain a fresh context store, just call the <code>createEagleEye(...)</code> function.
-                <NotePad>According to Svelte rules for contexts. Be sure to call this function at the top component whose children and descendants will use the context.</NotePad>
+                To obtain a fresh context store, just call the <code>createEagleEye(...)</code> function. Though, how this is achieved depends largely on the runtime environment, as will be demonstrated shortly:
             </Paragraph>
-            <Paragraph className="snippet-intro" id="create-context-usage">
-                <h3>Creating the <Name /> store</h3>
-                <div>To obtain a fresh context store, just call the <code>createEagleEye(...)</code> function.</div>
-                <NotePad>According to Svelte rules for contexts. Be sure to call this function at the top component whose children and descendants will use the context.</NotePad>
-            </Paragraph>
-            <Paragraph className="snippet-box">
-                <Header>demo-context.ts</Header>
-                <CodeBlock>{ contextArtifacts_7_0_0 }</CodeBlock>
-            </Paragraph>
-            <Paragraph className="snippet-box">
-                <Header>provider.svelte</Header>
-                <CodeBlock>{ creatorCode_7_0_0 }</CodeBlock>
-            </Paragraph>
-            <Paragraph className="snippet-box">
-                <Header>container.svelte</Header>
-                <CodeBlock>{ containerCode }</CodeBlock>
-            </Paragraph>
+            <SelectTab options={[{
+                label: <strong>Env: SSR - Universal App example (.svelte & .ts)</strong>,
+                value: (
+                    <>
+                        <Paragraph className="snippet-box">
+                            <Header>src/demo-context-artifacts.ts</Header>
+                            <CodeBlock>{ sampleContextArtifacts }</CodeBlock>
+                        </Paragraph>
+                        <Paragraph className="snippet-box">
+                            <Header>src/hooks.server.ts</Header>
+                            <CodeBlock>{ sampleServerHook }</CodeBlock>
+                        </Paragraph>
+                        <Paragraph className="snippet-box">
+                            <Header>src/routes/+layout.server.ts</Header>
+                            <CodeBlock>{ sampleServerLayout }</CodeBlock>
+                        </Paragraph>
+                        <Paragraph className="snippet-box">
+                            <Header>src/routes/+layout.svelte</Header>
+                            <CodeBlock>{ sampleLayoutUniversal }</CodeBlock>
+                        </Paragraph>
+                        <Paragraph className="snippet-box">
+                            <Header>src/routes/+page.svelte</Header>
+                            <CodeBlock>{ sampleComponent }</CodeBlock>
+                        </Paragraph>
+                    </>
+                )
+            }, {
+                label: <strong>Env: CSR Only App example { '(' }.svelte{ ')' }</strong>,
+                value: (
+                    <>
+                        <Paragraph className="snippet-box">
+                            <Header>src/demo-context-artifacts.ts</Header>
+                            <CodeBlock>{ sampleContextArtifacts }</CodeBlock>
+                        </Paragraph>
+                        <Paragraph className="snippet-box">
+                            <Header>src/routes/+layout.svelte</Header>
+                            <CodeBlock>{ sampleLayoutCSROnly }</CodeBlock>
+                        </Paragraph>
+                        <Paragraph className="snippet-box">
+                            <Header>src/routes/+page.svelte</Header>
+                            <CodeBlock>{ sampleComponent }</CodeBlock>
+                        </Paragraph>
+                    </>
+                )
+            }]} />
             <div className="snippet-intro" id="streaming">
                 <h3>Joining the <Name /> change stream</h3>
                 <Paragraph><Name /> change stream is a reactive store whose data are automatically changing to reflect most recent changes affecting them. </Paragraph>
-                <Paragraph>It embodies the "set-it-and-forget-it" paradigm. Just set up a list of property paths to state slices to observe { '(' }see <Anchor to="/concepts/selector-map">Selector Map</Anchor>{ ')' }. The context takes care of the rest.</Paragraph>z
+                <Paragraph>It embodies the "set-it-and-forget-it" paradigm. Just set up a list of property paths to state slices to observe { '(' }see <Anchor to="/concepts/selector-map">Selector Map</Anchor>{ ')' }. The context takes care of the rest.</Paragraph>
                 <Paragraph>The following shows how to join the <Name /> stream.</Paragraph>
                 <Paragraph>We use the context's <code>stream(...)</code> property to obtain an active store exposing the context change stream to our consumer component.</Paragraph>
             </div>
             <Paragraph className="snippet-box">
-                <Header>constants.ts</Header>
-                <CodeBlock>{ streamContextConstantsCode_7_0_0 }</CodeBlock>
-                <Header>Client1.svelte</Header>
+                <Header>src/components/Client1.svelte</Header>
                 <CodeBlock>{ streamContextCode_7_0_0_1 }</CodeBlock>
-                <Header>Client2.svelte</Header>
+                <Header>src/components/Client2.svelte</Header>
                 <CodeBlock>{ streamContextCode_7_0_0_2 }</CodeBlock>
-                <Header>Ui.svelte</Header>
+                <Header>src/components/Ui.svelte</Header>
                 <CodeBlock>{ streamContextCode_7_0_0 }</CodeBlock>
             </Paragraph>
-            <Paragraph className="snippet-intro">
-                The <Name /> runs decoupled from its embodying application, simply providing an active place for the application to accumulate, access, update and delete its various states as needed in ways that maintains immutability and integrity of state data. The following is a contrived snippet to demonstrate.
-            </Paragraph>
-            <Paragraph className="snippet-box">
-                <Header>app.svelte</Header>
-                <CodeBlock>{ setupCode_7_0_0 }</CodeBlock>
-            </Paragraph>
+            <div className="snippet-intro" id="discarding">
+                <h3>Discarding a <Name /> context instance</h3>
+                <Paragraph>The <Name /> runs decoupled from its embodying application, simply providing an active place for the application to accumulate, access, update and delete its various states as needed in ways that maintain immutability and integrity of state data. The `discardEagleEye` function removes it from the application, making it immediately GC eligible, as long as there no local references to it. The following is a contrived snippet to demonstrate.</Paragraph>
+                <Paragraph>
+                    Discarding the instance in a purely server .ts script or a CSR-only application script is fairly straight-forward for the following reasons:
+                    <ol>
+                        <li>in a purely server .ts script, the `requestToken` object is readily available.</li>
+                        <li>in a CSR-only application, the `requestToken` object is not needed to create an EagleEye context instance. Even when a `requestToken` was applied, it remained at the component level.</li>
+                    </ol>
+                </Paragraph>   
+                <Paragraph>   
+                    Discarding the instance in a universal application from a componenent script can be a complex task. It requires sharing the `requestToken` object between the server scripts and the Svelte component for the following reasons:
+                    <ol>
+                        <li>the `requestToken` object is not readily available. The server script must assign this per server request and shared with the component.</li>
+                        <li>the `requestToken` object, once in the componeent script, is not accessible throughout the component tree. Immediately captture this object in a Svelte context to be retrieved from any part of the component tree requiring the `discardEagleEye` call.</li>
+                    </ol>
+                </Paragraph>
+                <Paragraph className="snippet-box">
+                    <Header>src/routes/+layout.svelte</Header>
+                    <CodeBlock>{ sampleLayoutUniversal2 }</CodeBlock>
+                </Paragraph>
+                <Paragraph className="snippet-box">
+                    <Header>src/components/DiscardContext.svelte</Header>
+                    <CodeBlock>{ discardContextTrigger }</CodeBlock>
+                </Paragraph>
+            </div>
         </>
     );
 }
