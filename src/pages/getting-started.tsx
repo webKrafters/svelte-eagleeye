@@ -62,7 +62,7 @@ import {
 import { ContextKey } from './demo-context-artifacts.ts';
 
 export const handle : Handle = async ({ event, resolve }) => {
-    event.locals.requestToken = { // immediately provide a unique ID for this incoming request 
+    event.locals.requestToken = { // immediately create and share a unique ID for this incoming request 
         _id: crypto.randomUUID()
     } as RequestToken;
     const response = await resolve( event ); // layouts, pages and components are processed and resolved here.
@@ -78,7 +78,8 @@ const sampleServerLayout =
 `import { initState } from '../demo-context-artifacts.ts';
 
 let demoCtxValue = { ...initState };
-// build up \`demoCtxValue\`\ with request dependent operations as needed.
+
+/* build up \`demoCtxValue\` with request dependent operations as needed. */
 
 export const load = async ({ locals }) => ({
     demoCtxValue,
@@ -87,7 +88,10 @@ export const load = async ({ locals }) => ({
 
 const sampleLayoutUniversal =
 `<script lang="ts" module>
-    import { ContextKey } from '../demo-context-artifacts.ts';
+    import {
+        ContextKey,
+        type DemoState
+    } from '../demo-context-artifacts.ts';
     export const CTX_KEY = ContextKey;
 </script>
 <script lang="ts">
@@ -98,7 +102,7 @@ const sampleLayoutUniversal =
 
     const { requestToken, value } = untrack( () => data );
 
-    const ctx = createEagleEye({
+    const { value: ctx } = createEagleEye<DemoState>({
         key: CTX_KEY,
         prehooks?,
         requestToken,
@@ -115,7 +119,10 @@ const sampleLayoutUniversal =
 
 const sampleLayoutUniversal2 =
 `<script lang="ts" module>
-    import { ContextKey } from '../demo-context-artifacts.ts';
+    import {
+        ContextKey,
+        type DemoState
+    } from '../demo-context-artifacts.ts';
     export const CTX_KEY = ContextKey;
 </script>
 <script lang="ts">
@@ -126,7 +133,7 @@ const sampleLayoutUniversal2 =
 
     const { requestToken, value } = untrack( () => data );
 
-    const ctx = createEagleEye({
+    const { value: ctx } = createEagleEye<DemoState>({
         key: CTX_KEY,
         prehooks?,
         requestToken,
@@ -142,7 +149,11 @@ const sampleLayoutUniversal2 =
 
 const sampleLayoutCSROnly =
 `<script lang="ts" module>
-    import { ContextKey, initState } from '../demo-context-artifacts.ts';
+    import {
+        ContextKey,
+        type DemoState,
+        initState
+    } from '../demo-context-artifacts.ts';
     let numCreated = 0;
     export const CTX_KEY = 'Testing';
 </script>
@@ -153,7 +164,7 @@ const sampleLayoutCSROnly =
     const age = $state( 0 );
     const testNumber = $state( 0 );
 
-    const ctx = createEagleEye({
+    const { value: ctx } = createEagleEye<DemoState>({
         key: CTX_KEY, // does not have to be CTX_KEY but assures naming consistency
         value: initState,
         prehooks?,
@@ -270,37 +281,39 @@ function BodyCurrent() {
             <Paragraph className="snippet-intro" id="install">
                 <Name /> is an independent state manager, which once created, can be passed as an argument to any function and/or deployed at any location within an application without further ado. 
             </Paragraph>
-            <Paragraph className="snippet-intro" id="create-context-usage">
-                Four <strong>{ '(' }4{ ')' }</strong> module functions are provided for integrating this context within the Svelte application environment. Namely:
-                <ListItem>
-                    <div>
-                        <strong>allKeysIn:</strong> lists keys of all EagleEye contexts assigned to a request.
-                        <NotePad>A server request is identified by an arbitrary `requestToken` object holding unique string `_id` value. While `requestToken` may be used on the client-side, it is unnecessary.</NotePad>
-                    </div>
-                </ListItem>
-                <ListItem>
-                    <div>
-                        <strong>createEagleEye:</strong> creates an EagleEye context instance matching an arbitrary key { '[' }and optional arbitrary requestToken { '(' }a server request requirement{ ')' }{ ']' }.
-                        <NotePad>The `requestToken` object and its `_id` property must be unique in the appilcation. The key for each EagleEye context created under each `requestToken` must be unique within the request.</NotePad>
-                    </div>
-                </ListItem>
-                <ListItem>
-                    <div>
-                        <strong>discardEagleEye:</strong> closes and removes from an application the EagleEye context instance matching its assigned key { '[' }and, if assigned, its requestToken object{ ']' }.
-                        <NotePad>Once called, any `useEagleEye` attempts on this `requestToken`-`key` combination return null. Accessing it using the Svelte `getConext(...)` will produce and EagleEye context instance whose `closed` property is set.</NotePad>
-                    </div>
-                </ListItem>
-                <ListItem>
-                    <div>
-                        <strong>useEagleEye:</strong> returns the EagleEye context instance matching its assigned key { '[' }and, if assigned, its requestToken object{ ']' }.
-                        <NotePad>This function makes an EagleEye context instance accessible throughout the application. While in a Svelte component script, it is more effective to capture the EagleEye context instance within the Svelte context and easily access it through out a component tree section that way.</NotePad>
-                    </div>
-                </ListItem>
-            </Paragraph>
             <Paragraph className="snippet-box" id="usage">
                 <CodeBlock isInline>
                     npm install --save @webkrafters/svelte-eagleeye
                 </CodeBlock>
+            </Paragraph>
+            <Paragraph className="snippet-intro" id="create-context-usage">
+                Four <strong>{ '(' }4{ ')' }</strong> module functions are provided for integrating this context within the Svelte application environment. Namely:
+                <ListItem>
+                    <div>
+                        <strong>allKeysIn:</strong> lists keys of all <Name /> instance assigned to a request.
+                        <NotePad>Each <Name /> instance is mapped to at most one single request identified by its <code>requestToken</code>. Where no <code>requestToken</code> is assigned, such as in the browser environment, the instance is directly assigned to the application</NotePad>
+                        <NotePad>A server request is identified by an arbitrary <code>requestToken</code> object holding unique string <code>_id</code> value. While <code>requestToken</code> may be used on the browser environment, it is unnecessary.</NotePad>
+                    </div>
+                </ListItem>
+                <ListItem>
+                    <div>
+                        <strong>createEagleEye:</strong> creates an <Name /> instance matching an arbitrary key { '[' }and optional arbitrary requestToken { '(' }a server request requirement{ ')' }{ ']' }. It returns the instance along with its identifying information.
+                        <NotePad>The <code>requestToken</code> object and its <code>_id</code> property must be unique in the appilcation. The key for each <Name /> created under each <code>requestToken</code> must be unique within the request.</NotePad>
+                        <NotePad>When an instance whose creation payload matching the current payload exists, that instance is returned instead of creating a duplicate instance. It also returns this instance along with its identifying information.</NotePad>
+                    </div>
+                </ListItem>
+                <ListItem>
+                    <div>
+                        <strong>discardEagleEye:</strong> closes and removes from an application the <Name /> instance matching its assigned key { '[' }and, if assigned, its requestToken object{ ']' }.
+                        <NotePad>Once called, any <code>useEagleEye</code> attempts on this <code>requestToken</code>-<code>key</code> combination return null. Accessing it using the Svelte <code>getContext(...)</code> will produce and <Name /> instance whose <code>closed</code> property is set.</NotePad>
+                    </div>
+                </ListItem>
+                <ListItem>
+                    <div>
+                        <strong>useEagleEye:</strong> returns the <Name /> instance matching its assigned key { '[' }and, if assigned, its requestToken object{ ']' }.
+                        <NotePad>This function makes an <Name /> instance accessible throughout the application. While in a Svelte component script, it is more effective to capture the <Name /> instance within the Svelte context and easily access it through out a component tree section that way.</NotePad>
+                    </div>
+                </ListItem>
             </Paragraph>
             <Paragraph className="snippet-intro" id="create-context-usage">
                 <h3>Creating the <Name /> store</h3>
@@ -368,19 +381,19 @@ function BodyCurrent() {
             </Paragraph>
             <div className="snippet-intro" id="discarding">
                 <h3>Discarding a <Name /> context instance</h3>
-                <Paragraph>The <Name /> runs decoupled from its embodying application, simply providing an active place for the application to accumulate, access, update and delete its various states as needed in ways that maintain immutability and integrity of state data. The `discardEagleEye` function removes it from the application, making it immediately GC eligible, as long as there no local references to it. The following is a contrived snippet to demonstrate.</Paragraph>
+                <Paragraph>The <Name /> runs decoupled from its embodying application, simply providing an active place for the application to accumulate, access, update and delete its various states as needed in ways that maintain immutability and integrity of state data. The <code>discardEagleEye</code> function removes it from the application, making it immediately GC eligible, as long as there no local references to it. The following is a contrived snippet to demonstrate.</Paragraph>
                 <Paragraph>
                     Discarding the instance in a purely server .ts script or a CSR-only application script is fairly straight-forward for the following reasons:
                     <ol>
-                        <li>in a purely server .ts script, the `requestToken` object is readily available.</li>
-                        <li>in a CSR-only application, the `requestToken` object is not needed to create an EagleEye context instance. Even when a `requestToken` was applied, it remained at the component level.</li>
+                        <li>in a purely server .ts script, the <code>requestToken</code> object is readily available.</li>
+                        <li>in a CSR-only application, the <code>requestToken</code> object is not needed to create an <Name /> instance. Even when a <code>requestToken</code> was applied, it remained at the component level.</li>
                     </ol>
                 </Paragraph>   
                 <Paragraph>   
-                    Discarding the instance in a universal application from a componenent script can be a complex task. It requires sharing the `requestToken` object between the server scripts and the Svelte component for the following reasons:
+                    Discarding the instance in a universal application from a componenent script can be a complex task. It requires sharing the <code>requestToken</code> object between the server scripts and the Svelte component for the following reasons:
                     <ol>
-                        <li>the `requestToken` object is not readily available. The server script must assign this per server request and shared with the component.</li>
-                        <li>the `requestToken` object, once in the componeent script, is not accessible throughout the component tree. Immediately captture this object in a Svelte context to be retrieved from any part of the component tree requiring the `discardEagleEye` call.</li>
+                        <li>the <code>requestToken</code> object is not readily available. The server script must assign this per server request and shared with the component.</li>
+                        <li>the <code>requestToken</code> object, once in the componeent script, is not accessible throughout the component tree. Immediately captture this object in a Svelte context to be retrieved from any part of the component tree requiring the <code>discardEagleEye</code> call.</li>
                     </ol>
                 </Paragraph>
                 <Paragraph className="snippet-box">

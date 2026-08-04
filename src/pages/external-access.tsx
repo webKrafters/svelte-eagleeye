@@ -8,23 +8,58 @@ import Header from '../partials/segment-header';
 import ListItem from '../partials/list-item';
 import Name from '../partials/name';
 import Paragraph from '../partials/paragraph';
+import SelectTab from '../partials/select-tab';
+
+import '../partials/contents/external-access-page/style.scss';
 
 const setupCode_7_0_0 =
 `<script lang="ts">
-    import ObservableContext from './context'; // using example from the "Getting Started Page"
+    import { getContext } from 'svelte';
+    import { type SvelteEagleEye } from '@webkrafters/svelte-eagleeye';
+    import { ContextKey, type DemoState } from './demo-context-artifacts.ts';
     import Ui from './Ui'; // using example from the "Getting Started Page"
     import StoreMonitor from './debug-monitor';
 
+    const {
+        ctx: ObservableContext
+    } = getContext<SvelteEagleEye<DemoState>>( ContextKey );
+    
     $effect(() => {
         const monitor = new StoreMonitor(
             d => console.log( d ),
             ObservableContext.store
-        ));
+        );
         return () => monitor.cleanup();
     });
 </script>
 
 <Ui />`;
+
+const setupCode_7_0_0_ssr =
+`import {
+    createEagleEye,
+    type RequestToken
+} from '@webkrafters/svelte-eagleeye';
+
+import {
+    ContextKey as key,
+    type DemoState,
+    initState as value
+} from './demo-context-artifacts.ts';
+ 
+import StoreMonitor from './debug-monitor';
+
+export const handle : Handle = async ({ event, resolve }) => {
+    const requestToken : RequestToken = { _id: crypto.randomUUID() };
+    event.locals.requestToken = requestToken;
+    const monitor = new StoreMonitor(
+        d => console.log( d ),
+        createEagleEye<DemoState>({
+            key, requestToken, value
+        }).value.store
+    );
+    return await resolve( event );
+};`;
 
 const externalAccessCode =
 `class Monitor {
@@ -116,10 +151,26 @@ function BodyCurrent() {
                 </li>
             </ol>
             <h4>Let's see some code!</h4>
-            <div className="snippet-box">
-                <Header>app.svelte</Header>
-                <div>Sharing the store with a class.</div>
-                <CodeBlock>{ setupCode_7_0_0 }</CodeBlock>
+            <div className="snippet-box share">
+                <SelectTab options={[{
+                    label: <strong>Env: CSR - From a .svelte component</strong>,
+                    value: (
+                        <>
+                            <p>Sharing the store with a class.</p>
+                            <Header>src/components/LoggerDecorator.svelte</Header>
+                            <CodeBlock>{ setupCode_7_0_0 }</CodeBlock>
+                        </>
+                    )
+                }, {
+                    label: <strong>Env: SSR - From a server .ts script</strong>,
+                    value: (
+                        <>
+                            <p>Sharing the store with a class.</p>
+                            <Header>src/server.hooks.ts</Header>
+                            <CodeBlock>{ setupCode_7_0_0_ssr }</CodeBlock>
+                        </>
+                    )
+                }]} />
             </div>
             <div className="snippet-box">
                 <Header>debug-monitor.js</Header>

@@ -1,0 +1,12 @@
+.external-access-page {
+	li:not( :last-of-type ) {
+		padding-bottom: 1rem;
+	}
+	.share {
+		margin-bottom: 2rem;
+		.select-tab .ant-select {
+			margin-bottom: .5rem;
+			width: 18rem !important;
+		}
+	}
+}
