@@ -153,21 +153,21 @@ function BodyCurrent() {
             <h4>Let's see some code!</h4>
             <div className="snippet-box share">
                 <SelectTab options={[{
-                    label: <strong>Env: CSR - From a .svelte component</strong>,
-                    value: (
-                        <>
-                            <p>Sharing the store with a class.</p>
-                            <Header>src/components/LoggerDecorator.svelte</Header>
-                            <CodeBlock>{ setupCode_7_0_0 }</CodeBlock>
-                        </>
-                    )
-                }, {
                     label: <strong>Env: SSR - From a server .ts script</strong>,
                     value: (
                         <>
                             <p>Sharing the store with a class.</p>
                             <Header>src/server.hooks.ts</Header>
                             <CodeBlock>{ setupCode_7_0_0_ssr }</CodeBlock>
+                        </>
+                    )
+                }, {
+                    label: <strong>Env: CSR - From a .svelte component</strong>,
+                    value: (
+                        <>
+                            <p>Sharing the store with a class.</p>
+                            <Header>src/components/LoggerDecorator.svelte</Header>
+                            <CodeBlock>{ setupCode_7_0_0 }</CodeBlock>
                         </>
                     )
                 }]} />

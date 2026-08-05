@@ -96,7 +96,7 @@ function BodyCurrent(){
                 </div>
                 <div id="stream">
                     <h4>stream</h4>
-                    <ListItem><div>is a property of the <Name /> instance intentionally made as a no-frills means for observing  and communicating with this instance.</div></ListItem>
+                    <ListItem><div>is a function property of the <Name /> instance intentionally made as a no-frills means for observing and communicating with this instance.</div></ListItem>
                     <ListItem>
                         <div>
                             <div>It accepts:</div>

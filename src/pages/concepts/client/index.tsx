@@ -26,9 +26,9 @@ function BodyCurrent() {
                 </Paragraph>
                 <Paragraph>
                     Please see example in: 
-                    <ol>
+                    <ul>
                         <li><Anchor to="/getting-started#streaming">Joining the <Name /> change stream.</Anchor></li>
-                    </ol>
+                    </ul>
                 </Paragraph>
             </div>
         </div>
