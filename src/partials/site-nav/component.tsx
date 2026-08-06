@@ -36,10 +36,13 @@ const Component : React.FC = () => (
 		<NavLink className="group-link" to="/getting-started">Getting Started</NavLink>
 		<NavLinkIndent1 to="/getting-started#create-context-usage">Creating <Name /></NavLinkIndent1>
 		<NavLinkIndent1 to="/getting-started#streaming">Consuming Context in Streams</NavLinkIndent1>
+		<NavLinkIndent1 to="/getting-started#discarding">Discarding a Context</NavLinkIndent1>
 		<NavLink to="/external-access">External Access</NavLink>
 		<NavLink className="group-link" to="/api">API</NavLink>
 		<NavLinkIndent1 to="/api#create-context">CreateContext Function</NavLinkIndent1>
+		<NavLinkIndent1 to="/api#use-context">Locate Existing Context</NavLinkIndent1>
 		<NavLinkIndent1 to="/api#stream">Join Context Stream</NavLinkIndent1>
+		<NavLinkIndent1 to="/api#discard-context">Discard Existing Context</NavLinkIndent1>
 		<NavLink className="group-link" to="/concepts/client">Concepts</NavLink>
 		<NavLinkIndent1 to="/concepts/client">Client</NavLinkIndent1>
 		<NavLinkIndent1 to="/concepts/key">Key</NavLinkIndent1>

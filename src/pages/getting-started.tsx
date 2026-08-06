@@ -286,7 +286,7 @@ function BodyCurrent() {
                     npm install --save @webkrafters/svelte-eagleeye
                 </CodeBlock>
             </Paragraph>
-            <Paragraph className="snippet-intro" id="create-context-usage">
+            <Paragraph className="snippet-intro" id="introduction">
                 Four <strong>{ '(' }4{ ')' }</strong> module functions are provided for integrating this context within the Svelte application environment. Namely:
                 <ListItem>
                     <div>
