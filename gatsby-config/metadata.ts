@@ -2,7 +2,7 @@ import pkgJson from '../package.json';
 
 // @debugs
 // export const basePkgName = '@webkrafters/svelte-eagleeye';
-export const basePkgName = '@webkrafters/vue-eagleeye';
+export const basePkgName = '@webkrafters/svelte-eagleeye';
 
 export const NO_SIDER_URI_PATTERN = /^$/; // /^(?:\/(?:quick-start\/?)?(?:\?.*)?)?$/;
 
